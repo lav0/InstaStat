@@ -2,6 +2,7 @@ from instagram import client, subscriptions
 from instagram.client import InstagramAPI
 import plotly as py
 import plotly.graph_objs as go
+import json
 
 myAccessToken  = '723066430.f01b0ca.733da33d9055407fa018ac698908df78'
 myClientID     = 'f01b0ca9cbdd43afaabe4abf564e0771'
@@ -31,15 +32,18 @@ def media_for_graph(userid):
 
     # rec = grab_all_media()
     rec, nxt = api.user_recent_media(user_id=userid)
+    #json.dumps(rec.data())
     for media in rec:
-        print media.created_time
+        print media.created_time, media.like_count
         xs.append(media.created_time)
         ys.append(media.like_count)
-    ys = list(reversed(ys))
+
     return xs, ys
 
 
 xme, yme = media_for_graph(NameToId['me'])
+
+print ' '
 xsh, ysh = media_for_graph(NameToId['sasha'])
 
 trace2 = go.Scatter(
