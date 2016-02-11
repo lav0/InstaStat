@@ -2,19 +2,22 @@ from instagram import client, subscriptions
 from instagram.client import InstagramAPI
 import plotly as py
 import plotly.graph_objs as go
+from updateData import NameToId
+from updateData import DataUpdater
+from updateData import myAccessToken
+from updateData import myClientID
+from updateData import myClientSecret
+import os
 import json
 
-myAccessToken  = '723066430.f01b0ca.733da33d9055407fa018ac698908df78'
-myClientID     = 'f01b0ca9cbdd43afaabe4abf564e0771'
-myClientSecret = 'd45cab5e7d6f4b1581a2b89e9db6c037'
 
-api = InstagramAPI(client_id=myClientID, client_secret=myClientSecret)
+api = 0
 
-NameToId = {
-    'sasha': 1069553524,
-    'nikita': 15889564,
-    'me': 723066430
-}
+
+def setup_api():
+    global api
+    api = InstagramAPI(client_id=myClientID, client_secret=myClientSecret)
+
 
 
 def grab_all_media(userid=NameToId['me']):
@@ -41,31 +44,56 @@ def media_for_graph(userid):
     return xs, ys
 
 
-xme, yme = media_for_graph(NameToId['me'])
+def plot_my_first_stat():
+    xme, yme = media_for_graph(NameToId['me'])
 
-print ' '
-xsh, ysh = media_for_graph(NameToId['sasha'])
+    print ' '
+    xsh, ysh = media_for_graph(NameToId['sasha'])
 
-trace2 = go.Scatter(
-    x=xsh,
-    y=ysh,
-    mode='lines+markers',
-    name="Alexandra",
-    hoverinfo='none',
-    line=dict(
-        shape='spline'
+    trace2 = go.Scatter(
+        x=xsh,
+        y=ysh,
+        mode='lines+markers',
+        name="Alexandra",
+        hoverinfo='none',
+        line=dict(
+            shape='spline'
+        )
     )
-)
 
-trace3 = go.Scatter(
-    x=xme,
-    y=yme,
-    mode='lines+markers',
-    name="Andrey",
-    hoverinfo='none',
-    line=dict(
-        shape='spline'
+    trace3 = go.Scatter(
+        x=xme,
+        y=yme,
+        mode='lines+markers',
+        name="Andrey",
+        hoverinfo='none',
+        line=dict(
+            shape='spline'
+        )
     )
-)
 
-py.offline.plot([trace2, trace3])
+    py.offline.plot([trace2, trace3])
+
+
+def expand_data(data):
+    if isinstance(data, dict):
+        for key in data.keys():
+            print " {", key, ":",  expand_data(data[key]), "} "
+    elif isinstance(data, list):
+        for item in data:
+            print " [", expand_data(item), "] "
+
+    return data
+
+
+DataUpdater(NameToId['nikita'], myAccessToken).update_media_data()
+
+# data_file = 0
+# path = str(NameToId['me'])
+# if os.path.exists(path):
+#     data_file = open(path + '/userData.json')
+# json_data = json.load(data_file)
+# print expand_data(json_data)
+
+# setup_api()
+# plot_all_data_for_users()
