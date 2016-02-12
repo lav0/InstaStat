@@ -2,6 +2,8 @@ import urllib2
 import string
 from datetime import datetime
 from datetime import timedelta
+from usersProvider import name_to_id_dict
+from authInfoProvider import get_access_token
 import json
 import os
 
@@ -9,41 +11,6 @@ recentMediaUrlPrototype = \
     "https://api.instagram.com/v1/users/{user-id}/media/recent/?access_token=ACCESS-TOKEN"
 userUrlPrototype = \
     "https://api.instagram.com/v1/users/{user-id}/?access_token=ACCESS-TOKEN"
-
-
-def get_auth_token(token):
-    dir_data = "data/auth.json"
-    if not os.path.exists(dir_data):
-        raise ValueError(token + " is not provided. Put in 'data/auth.json' !")
-    auth_file = open(dir_data, 'r')
-    data = json.load(auth_file)
-    value = str(data[token])
-    if not isinstance(data, dict):
-        raise ValueError(token + " is not provided. Put in 'data/auth.json' !!")
-    return value
-
-
-def get_access_token():
-    return get_auth_token(u'AccessToken')
-
-
-def get_client_id():
-    return get_access_token("ClientID")
-
-
-def get_client_secret():
-    return get_access_token("ClientSecret")
-
-
-def name_to_id_dict():
-    dir_data = "data/ids.json"
-    if not os.path.exists(dir_data):
-        raise ValueError("No user ids provided")
-    ids_file = open(dir_data, 'r')
-    data = json.load(ids_file)
-    if not isinstance(data, dict):
-        raise ValueError("Bad ids file")
-    return data
 
 
 def get_url(user_id, access_token, prototype=recentMediaUrlPrototype):

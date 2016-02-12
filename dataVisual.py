@@ -1,11 +1,12 @@
 import os
+import sys
 import json
 import plotly as py
 import plotly.graph_objs as go
 
 from datetime import datetime
-from updateData import NameToId
 from mediaHolder import MediaHolder
+from usersProvider import name_to_id_dict
 
 
 def user_media(userid):
@@ -87,7 +88,7 @@ def plot_data_for_users(users, media_getter):
     trace_list = list()
     max_x = 0
     for user in users:
-        xme, yme = media_getter(NameToId[user])
+        xme, yme = media_getter(name_to_id_dict()[user])
         max_x = max([len(xme), max_x])
         trace = go.Scatter(
             x=xme,
@@ -119,7 +120,12 @@ def plot_data_for_users(users, media_getter):
     py.offline.plot(fig, filename=file_name, auto_open=False)
 
 
-target_users = ['sasha', 'me']
+target_users = sys.argv[1:]
+user_dict = name_to_id_dict()
+
+for user in target_users:
+    if user not in user_dict.keys():
+        raise ValueError("User not found: " + user)
 
 plot_data_for_users(target_users, media_getter=average_like_by_month)
 plot_data_for_users(target_users, media_getter=total_like_by_month)
