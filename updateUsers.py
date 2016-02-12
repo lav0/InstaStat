@@ -5,7 +5,6 @@ from instagram.client import InstagramAPI
 from authInfoProvider import get_access_token
 from authInfoProvider import get_client_id
 from authInfoProvider import get_client_secret
-from updateData import DataUpdater
 
 
 def save_user(username, userid):
@@ -36,6 +35,9 @@ else:
 
 print "Found user:", user.username
 userid = save_user(user.username, user.id)
+
+
+from updateData import DataUpdater
 
 DataUpdater(userid, get_access_token()).update()
 
