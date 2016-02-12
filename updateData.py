@@ -10,15 +10,40 @@ recentMediaUrlPrototype = \
 userUrlPrototype = \
     "https://api.instagram.com/v1/users/{user-id}/?access_token=ACCESS-TOKEN"
 
-myAccessToken  = '723066430.f01b0ca.733da33d9055407fa018ac698908df78'
-myClientID     = 'f01b0ca9cbdd43afaabe4abf564e0771'
-myClientSecret = 'd45cab5e7d6f4b1581a2b89e9db6c037'
 
-NameToId = {
-    'sasha': 1069553524,
-    'nikita': 15889564,
-    'me': 723066430
-}
+def get_auth_token(token):
+    dir_data = "data/auth.json"
+    if not os.path.exists(dir_data):
+        raise ValueError(token + " is not provided. Put in 'data/auth.json' !")
+    auth_file = open(dir_data, 'r')
+    data = json.load(auth_file)
+    value = str(data[token])
+    if not isinstance(data, dict):
+        raise ValueError(token + " is not provided. Put in 'data/auth.json' !!")
+    return value
+
+
+def get_access_token():
+    return get_auth_token(u'AccessToken')
+
+
+def get_client_id():
+    return get_access_token("ClientID")
+
+
+def get_client_secret():
+    return get_access_token("ClientSecret")
+
+
+def name_to_id_dict():
+    dir_data = "data/ids.json"
+    if not os.path.exists(dir_data):
+        raise ValueError("No user ids provided")
+    ids_file = open(dir_data, 'r')
+    data = json.load(ids_file)
+    if not isinstance(data, dict):
+        raise ValueError("Bad ids file")
+    return data
 
 
 def get_url(user_id, access_token, prototype=recentMediaUrlPrototype):
@@ -51,7 +76,7 @@ class DataUpdater:
             return True
         str_date = open(self.date_file, 'r').read()
         last_modified = datetime.strptime(str_date, '%Y-%m-%d %H:%M:%S.%f')
-        return self.current_date - last_modified > timedelta(days=1)
+        return self.current_date - last_modified > timedelta(hours=12)
 
     def write_current_date(self):
         open(self.date_file, 'w').write(str(self.current_date))
@@ -105,7 +130,8 @@ class DataUpdater:
 
 
 def update_all():
-    for key in NameToId:
-        DataUpdater(NameToId[key], myAccessToken).update()
+    d = name_to_id_dict()
+    for userid in d.values():
+        DataUpdater(userid, get_access_token()).update()
 
 update_all()
