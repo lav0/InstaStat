@@ -31,7 +31,7 @@ class DataUpdater:
     def __init__(self, user_id, access_token):
         self.user_id = user_id
         self.access_token = access_token
-        self.dir = str(user_id) + '/'
+        self.dir = 'users/' + str(user_id) + '/'
         self.date_file = self.dir + 'lastModifiedDate.txt'
         self.current_date = datetime.now()
         self.dynamic_data = self.dir + 'dynamicUserData.json'
