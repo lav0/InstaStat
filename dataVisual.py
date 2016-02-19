@@ -18,21 +18,16 @@ def user_media(userid):
     return json_data
 
 
-def all_media_for_graph(userid):
-    xs = list()
-    ys = list()
+def total_likes_and_media(userid):
+    likes=0
+    posts=0
+    all_media = user_media(userid)
+    for media in all_media:
+        mh = MediaHolder(media)
+        likes += mh.like_count()
+        posts += 1
 
-    # rec = grab_all_media()
-    rec = user_media(userid)
-    for med in rec:
-        media_holder = MediaHolder(med)
-        created_time = media_holder.created_time()
-        like_count = media_holder.like_count()
-        print created_time, like_count
-        xs.append(created_time)
-        ys.append(like_count)
-
-    return xs, ys
+    return likes, posts
 
 
 def stat_by_month(userid, func_y_value):
@@ -96,8 +91,10 @@ def number_of_media_by_month(userid):
 
 
 def acc_total_like_by_month(userid):
+    likes, posts = total_likes_and_media(userid)
+    total_average_like = likes / float(posts)
     def total(month_likes):
-        return sum(month_likes)
+        return sum(month_likes) / float(total_average_like)
     return accumulated_stat_by_month(userid, total)
 
 
@@ -179,7 +176,7 @@ for user in target_users:
 if len(target_users) == 1:
     plot_data_for_users(target_users, [(average_like_by_month, 'scatter'),
                                        (number_of_media_by_month, 'bar')])
-    plot_data_for_users(target_users, [(average_like_by_month, 'scatter'),
+    plot_data_for_users(target_users, [(acc_total_like_by_month, 'scatter'),
                                        (acc_number_of_media_by_month, 'bar')])
 else:
     plot_data_for_users(target_users, [(average_like_by_month, 'scatter')])
