@@ -6,6 +6,7 @@ from usersProvider import name_to_id_dict
 from authInfoProvider import get_access_token
 import json
 import os
+import sys
 
 recentMediaUrlPrototype = \
     "https://api.instagram.com/v1/users/{user-id}/media/recent/?access_token=ACCESS-TOKEN"
@@ -101,4 +102,5 @@ def update_all():
     for userid in d.values():
         DataUpdater(userid, get_access_token()).update()
 
-update_all()
+if sys.argv[-1] == "all":
+    update_all()

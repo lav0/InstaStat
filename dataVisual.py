@@ -8,6 +8,8 @@ from datetime import datetime
 from mediaHolder import MediaHolder
 from usersProvider import name_to_id_dict
 
+dict_likes_and_media_count_by_user = dict()
+
 
 def user_media(userid):
     dir_data = 'users/' + str(userid) + '/mediaData.json'
@@ -19,13 +21,20 @@ def user_media(userid):
 
 
 def total_likes_and_media(userid):
-    likes=0
-    posts=0
+    global dict_likes_and_media_count_by_user
+
+    if userid in dict_likes_and_media_count_by_user.keys():
+        return dict_likes_and_media_count_by_user[userid]
+
+    likes = 0
+    posts = 0
     all_media = user_media(userid)
     for media in all_media:
         mh = MediaHolder(media)
         likes += mh.like_count()
         posts += 1
+
+    dict_likes_and_media_count_by_user[userid] = (likes, posts)
 
     return likes, posts
 
@@ -190,6 +199,16 @@ if os.path.exists(str_file_all):
 
 result_file = open(str_file_all, 'w+')
 result_file.write("<html><head><meta charset=\"utf-8\"/></head>")
+
+for user in target_users:
+    likes, posts = total_likes_and_media(user_dict[user])
+    result_file.write("<center>")
+    result_file.write("<div style=\"width:200px;background:#f0f0f2;border:1px dotted grey;text-align:center\">")
+    result_file.write("<p>" + str(user) + "</p>")
+    result_file.write("<p>Media: " + str(posts) + "</p>")
+    result_file.write("<p>Likes: " + str(likes) + "</p>")
+    result_file.write("</div></center>")
+result_file.write("</br>")
 
 
 def find_between(s, first, last):
