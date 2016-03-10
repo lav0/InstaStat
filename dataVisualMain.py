@@ -1,23 +1,14 @@
 import os
 import sys
-import json
 import plotly as py
 import plotly.graph_objs as go
 
 from datetime import datetime
 from mediaHolder import MediaHolder
+from mediaHolder import user_media
 from usersProvider import name_to_id_dict
 
 dict_likes_and_media_count_by_user = dict()
-
-
-def user_media(userid):
-    dir_data = 'users/' + str(userid) + '/mediaData.json'
-    if not os.path.exists(dir_data):
-        return None
-    file_data = open(dir_data, 'r')
-    json_data = json.load(file_data)
-    return json_data
 
 
 def total_likes_and_media(userid):
