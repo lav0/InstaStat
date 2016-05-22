@@ -12,6 +12,12 @@ recentMediaUrlPrototype = \
     "https://api.instagram.com/v1/users/{user-id}/media/recent/?access_token=ACCESS-TOKEN"
 userUrlPrototype = \
     "https://api.instagram.com/v1/users/{user-id}/?access_token=ACCESS-TOKEN"
+self_info = \
+    "https://api.instagram.com/v1/users/self/?access_token=ACCESS-TOKEN"
+self_followed_by = \
+    "https://api.instagram.com/v1/users/self/followed-by?access_token=ACCESS-TOKEN"
+
+self_id = None
 
 
 def get_url(user_id, access_token, prototype=recentMediaUrlPrototype):
@@ -26,6 +32,21 @@ def get_next_url(json_data):
             if 'next_url' in pag.keys():
                 return pag['next_url']
     return None
+
+
+def get_self_url(access_token):
+    return string.replace(self_info, "ACCESS-TOKEN", access_token)
+
+
+def get_self_id():
+    global self_id
+    if self_id is not None:
+        return self_id
+    url = get_self_url(get_access_token())
+    raw_data = urllib2.urlopen(url).read()
+    json_data = json.loads(raw_data)
+    self_id = int(json_data['data']['id'])
+    return self_id
 
 
 class DataUpdater:
@@ -90,11 +111,36 @@ class DataUpdater:
         final_file = open(self.dir + "mediaData.json", 'w')
         json.dump(data, final_file)
 
+    def update_followed_by(self):
+        if get_self_id() != self.user_id:
+            # followed by info accessible for access-token owner only
+            return
+
+        followed_by_list = list()
+        url = get_url('', get_access_token(), self_followed_by)
+        while url is not None:
+            raw_data = urllib2.urlopen(url).read()
+            json_data = json.loads(raw_data)
+            followed_by_list += json_data['data']
+            url = get_next_url(json_data)
+        dir_followed_by = self.dir + 'followed_by/'
+        if not os.path.exists(dir_followed_by):
+            os.mkdir(dir_followed_by)
+        final_file = open(dir_followed_by + str(datetime.now().date()) + '.json', 'w')
+        json.dump(followed_by_list, final_file)
+
     def update(self):
         if self.is_update_allowed():
             self.update_user_data()
             self.update_media_data()
+            self.update_followed_by()
             self.write_current_date()
+
+
+def update(user_name=None):
+    d = name_to_id_dict()
+    if user_name in d.keys():
+        DataUpdater(d[user_name], get_access_token()).update()
 
 
 def update_all():
@@ -102,5 +148,9 @@ def update_all():
     for userid in d.values():
         DataUpdater(userid, get_access_token()).update()
 
-if sys.argv[-1] == "all":
+arg = sys.argv[-1]
+if arg == "all":
     update_all()
+else:
+    update(arg)
+

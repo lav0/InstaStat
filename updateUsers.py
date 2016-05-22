@@ -2,9 +2,7 @@ import json
 import sys
 import os
 from instagram.client import InstagramAPI
-from authInfoProvider import get_access_token
-from authInfoProvider import get_client_id
-from authInfoProvider import get_client_secret
+import authInfoProvider
 
 
 def save_user(username, userid):
@@ -22,7 +20,10 @@ def save_user(username, userid):
     return data[username]
 
 
-api = InstagramAPI(client_id=get_client_id(), client_secret=get_client_secret())
+api = InstagramAPI(
+                    client_id=authInfoProvider.get_client_id(),
+                    client_secret=authInfoProvider.get_client_secret()
+                   )
 
 target_name = sys.argv[-1]
 
@@ -39,6 +40,6 @@ userid = save_user(user.username, user.id)
 
 from updateData import DataUpdater
 
-DataUpdater(userid, get_access_token()).update()
+DataUpdater(userid, authInfoProvider.get_access_token()).update()
 
 

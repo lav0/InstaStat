@@ -13,6 +13,19 @@ class MediaHolder:
     def like_count(self):
         return self.media['likes']['count']
 
+    def comment_count(self):
+        return self.media['comments']['count']
+
+    def longitude(self):
+        if not self.media['location']:
+            return None
+        return self.media['location']['longitude']
+
+    def latitude(self):
+        if not self.media['location']:
+            return None
+        return self.media['location']['latitude']
+
     def link(self):
         return self.media['link']
 
