@@ -116,18 +116,19 @@ class DataUpdater:
             # followed by info accessible for access-token owner only
             return
 
-        followed_by_list = list()
+        followed_by_ids_and_names = list()
         url = get_url('', get_access_token(), self_followed_by)
         while url is not None:
             raw_data = urllib2.urlopen(url).read()
             json_data = json.loads(raw_data)
-            followed_by_list += json_data['data']
+            followed_by_data = json_data['data']
+            followed_by_ids_and_names += [{entry['id']: entry['username']} for entry in followed_by_data]
             url = get_next_url(json_data)
         dir_followed_by = self.dir + 'followed_by/'
         if not os.path.exists(dir_followed_by):
             os.mkdir(dir_followed_by)
         final_file = open(dir_followed_by + str(datetime.now().date()) + '.json', 'w')
-        json.dump(followed_by_list, final_file)
+        json.dump(followed_by_ids_and_names, final_file)
 
     def update(self):
         if self.is_update_allowed():
