@@ -133,10 +133,10 @@ class DataUpdater:
         json.dump(followed_by_ids_and_names, final_file)
 
     def update(self):
-        self.update_followed_by()
         if self.is_update_allowed():
             self.update_user_data()
             self.update_media_data()
+            self.update_followed_by()
             self.write_current_date()
 
 
