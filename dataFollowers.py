@@ -5,6 +5,9 @@ from datetime import datetime
 from datetime import timedelta
 
 
+regex_date_pattern = '^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$'
+
+
 ###############################################################################
 def get_aim_path(principle):
     if os.path.exists('users/'):
@@ -22,7 +25,7 @@ def build_dates_to_filename_dict(aim_path):
         str_date, str_ext = os.path.splitext(file_name)
         if str_ext != '.json':
             continue
-        date_checker = re.compile('^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$')
+        date_checker = re.compile(regex_date_pattern)
         if date_checker.match(str_date) is None:
             continue
         dates_to_filenames[datetime.strptime(str_date, '%Y-%m-%d')] = file_name
