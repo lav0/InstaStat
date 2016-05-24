@@ -35,7 +35,7 @@ def build_dates_to_filename_dict(aim_path):
 
 ###############################################################################
 def compared_files_with_period(period_days=1, principle='followed_by'):
-    if principle not in ['followed_by']: #, 'following']:
+    if principle not in ['followed_by']:
         return None
 
     aim_path = get_aim_path(principle)
