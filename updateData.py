@@ -16,6 +16,8 @@ self_info = \
     "https://api.instagram.com/v1/users/self/?access_token=ACCESS-TOKEN"
 self_followed_by = \
     "https://api.instagram.com/v1/users/self/followed-by?access_token=ACCESS-TOKEN"
+self_follows = \
+    "https://api.instagram.com/v1/users/self/follows?access_token=ACCESS-TOKEN"
 
 self_id = None
 
@@ -111,32 +113,47 @@ class DataUpdater:
         final_file = open(self.dir + "mediaData.json", 'w')
         json.dump(data, final_file)
 
-    def update_followed_by(self):
+    def __update_relationships(self, principle):
+        principle_to_url_prototype = {
+            'followed_by': self_followed_by,
+            'follows': self_follows
+        }
+
+        if principle not in principle_to_url_prototype.keys():
+            return
+
         if get_self_id() != self.user_id:
             # followed by info accessible for access-token owner only
             return
 
-        followed_by_ids_and_names = dict()
-        url = get_url('', get_access_token(), self_followed_by)
+        ids_to_names_dictionary = dict()
+        url = get_url('', get_access_token(), principle_to_url_prototype[principle])
         while url is not None:
             raw_data = urllib2.urlopen(url).read()
             json_data = json.loads(raw_data)
-            followed_by_data = json_data['data']
-            list_of_dictionaries = [{entry['id']: entry['username']} for entry in followed_by_data]
+            users = json_data['data']
+            list_of_dictionaries = [{entry['id']: entry['username']} for entry in users]
             for d in list_of_dictionaries:
-                followed_by_ids_and_names.update(d)
+                ids_to_names_dictionary.update(d)
             url = get_next_url(json_data)
-        dir_followed_by = self.dir + 'followed_by/'
-        if not os.path.exists(dir_followed_by):
-            os.mkdir(dir_followed_by)
-        final_file = open(dir_followed_by + str(datetime.now().date()) + '.json', 'w')
-        json.dump(followed_by_ids_and_names, final_file)
+        aim_directory = self.dir + principle + '/'
+        if not os.path.exists(aim_directory):
+            os.mkdir(aim_directory)
+        final_file = open(aim_directory + str(datetime.now().date()) + '.json', 'w')
+        json.dump(ids_to_names_dictionary, final_file)
+
+    def update_followed_by(self):
+        self.__update_relationships('followed_by')
+
+    def update_follows(self):
+        self.__update_relationships('follows')
 
     def update(self):
         if self.is_update_allowed():
             self.update_user_data()
             self.update_media_data()
             self.update_followed_by()
+            self.update_follows()
             self.write_current_date()
 
 
