@@ -157,5 +157,4 @@ if arg == "all":
 else:
     update(arg)
 
-# nothing   
 
