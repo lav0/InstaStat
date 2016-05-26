@@ -47,10 +47,11 @@ def relationship_data_for_period(period_days=1, principle='followed_by'):
     period = timedelta(days=period_days)
 
     now = datetime.now()
-    result = list()
+    result = dict()
     for date in dates_to_filenames.keys():
         if now - date <= period:
-            result += json.load(open(aim_path + '/' + dates_to_filenames[date]))
+            file_path = aim_path + '/' + dates_to_filenames[date]
+            result.update(json.load(open(file_path)))
 
     return result
 
@@ -91,7 +92,7 @@ def print_the_ones_i_dont_follow_back():
     followers = relationship_data_the_last(principle='followed_by')
     followings = relationship_data_the_last(principle='follows')
 
-    pours = list_subtraction(followers, followings)
+    pours = list_subtraction(followers.keys(), followings.keys())
     print "There are", len(pours), "Followers you don't follow back: "
     for p in pours:
         print followers[p]
@@ -102,10 +103,20 @@ def print_the_ones_who_dont_follow_me_back():
     followers = relationship_data_the_last(principle='followed_by')
     followings = relationship_data_the_last(principle='follows')
 
-    toughs = list_subtraction(followings, followers)
+    toughs = list_subtraction(followings.keys(), followers.keys())
     print "There are", len(toughs), "Following users who don't follow you back: "
     for p in toughs:
         print followings[p]
+
+
+def print_lost_followers_for_period(period=7):
+    followers = relationship_data_the_last(principle='followed_by')
+    all_followers_in_period = \
+        relationship_data_for_period(period_days=period, principle='followed_by')
+    fagots = list_subtraction(all_followers_in_period.keys(), followers.keys())
+    print "There are", len(fagots), "people who unfollowed you in last", period, "days."
+    for fag in fagots:
+        print all_followers_in_period[fag]
 
 print_the_ones_who_dont_follow_me_back()
 
