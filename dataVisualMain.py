@@ -6,7 +6,7 @@ import plotly.graph_objs as go
 from datetime import datetime
 from mediaHolder import MediaHolder
 from mediaHolder import user_media
-from usersProvider import name_to_id_dict
+from usersProvider import get_name_to_id_dict_from_db
 
 dict_likes_and_media_count_by_user = dict()
 
@@ -136,7 +136,7 @@ def plot_data_for_users(users, plot_params_list, plot_title=None):
         y_title = media_getter.__name__
         for user1 in users:
             g_title = user1
-            xme, yme = media_getter(name_to_id_dict()[user1])
+            xme, yme = media_getter(get_name_to_id_dict_from_db()[user1])
             max_x = max([len(xme), max_x])
             trace = trace_for_plot(graph_type)
             trace['x'] = xme
@@ -167,7 +167,7 @@ def plot_data_for_users(users, plot_params_list, plot_title=None):
 
 
 target_users = sys.argv[1:]
-user_dict = name_to_id_dict()
+user_dict = get_name_to_id_dict_from_db()
 
 for user in target_users:
     if user not in user_dict.keys():

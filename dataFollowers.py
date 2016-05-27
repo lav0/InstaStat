@@ -3,6 +3,7 @@ import json
 import re
 from datetime import datetime
 from datetime import timedelta
+from usersProvider import UserInfoProvider
 
 regex_date_pattern = '^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$'
 
@@ -130,7 +131,14 @@ def print_the_ones_who_dont_follow_me_back():
 def print_lost_followers_for_period(period=7):
     the_ones = get_lost_followers_for_period(period)
     print "There are", len(the_ones), "people who unfollowed you in last", period, "days."
-    for fag in the_ones.values():
+    for fag in the_ones:
         print fag
 
-print_lost_followers_for_period()
+lost_followers = get_lost_followers_for_period()
+for id in lost_followers.keys():
+    info_provider = UserInfoProvider(id)
+    if info_provider.is_valid():
+        print lost_followers[id], info_provider.instagram_profile_url()
+    else:
+        print "Bad id for user:", lost_followers[id]
+

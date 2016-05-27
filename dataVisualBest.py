@@ -6,10 +6,10 @@ from datetime import datetime
 from numpy.random.mtrand import f
 from mediaHolder import MediaHolder
 from mediaHolder import user_media
-from usersProvider import name_to_id_dict
+from usersProvider import get_name_to_id_dict_from_db
 
 
-user_dict = name_to_id_dict()
+user_dict = get_name_to_id_dict_from_db()
 
 user_id = user_dict['lav_q']
 all_media = user_media(user_id)

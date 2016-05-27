@@ -1,30 +1,20 @@
-import urllib2
-import string
 from datetime import datetime
 from datetime import timedelta
-from usersProvider import name_to_id_dict
+from usersProvider import get_name_to_id_dict_from_db
 from authInfoProvider import get_access_token
+from urlPrototypes import recentMediaUrlPrototype
+from urlPrototypes import userUrlPrototype
+from urlPrototypes import selfInfo
+from urlPrototypes import selfFollowedBy
+from urlPrototypes import selfFollows
+from urlPrototypes import get_url
+import urllib2
+import string
 import json
 import os
 import sys
 
-recentMediaUrlPrototype = \
-    "https://api.instagram.com/v1/users/{user-id}/media/recent/?access_token=ACCESS-TOKEN"
-userUrlPrototype = \
-    "https://api.instagram.com/v1/users/{user-id}/?access_token=ACCESS-TOKEN"
-self_info = \
-    "https://api.instagram.com/v1/users/self/?access_token=ACCESS-TOKEN"
-self_followed_by = \
-    "https://api.instagram.com/v1/users/self/followed-by?access_token=ACCESS-TOKEN"
-self_follows = \
-    "https://api.instagram.com/v1/users/self/follows?access_token=ACCESS-TOKEN"
-
 self_id = None
-
-
-def get_url(user_id, access_token, prototype=recentMediaUrlPrototype):
-    tmp = string.replace(prototype, '{user-id}', str(user_id))
-    return string.replace(tmp, "ACCESS-TOKEN", access_token)
 
 
 def get_next_url(json_data):
@@ -37,7 +27,7 @@ def get_next_url(json_data):
 
 
 def get_self_url(access_token):
-    return string.replace(self_info, "ACCESS-TOKEN", access_token)
+    return string.replace(selfInfo, "ACCESS-TOKEN", access_token)
 
 
 def get_self_id():
@@ -94,7 +84,7 @@ class DataUpdater:
         json.dump(dyn_data, f_dynamic, separators=(',\n', ':'))
 
     def update_media_data(self):
-        data_url = get_url(self.user_id, self.access_token)
+        data_url = get_url(self.user_id, self.access_token, recentMediaUrlPrototype)
         data = list()
         filename = "__tmpFile"
         f = open(filename, 'w')
@@ -115,8 +105,8 @@ class DataUpdater:
 
     def __update_relationships(self, principle):
         principle_to_url_prototype = {
-            'followed_by': self_followed_by,
-            'follows': self_follows
+            'followed_by': selfFollowedBy,
+            'follows': selfFollows
         }
 
         if principle not in principle_to_url_prototype.keys():
@@ -158,13 +148,13 @@ class DataUpdater:
 
 
 def update(user_name=None):
-    d = name_to_id_dict()
+    d = get_name_to_id_dict_from_db()
     if user_name in d.keys():
         DataUpdater(d[user_name], get_access_token()).update()
 
 
 def update_all():
-    d = name_to_id_dict()
+    d = get_name_to_id_dict_from_db()
     for userid in d.values():
         DataUpdater(userid, get_access_token()).update()
 
