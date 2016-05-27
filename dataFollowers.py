@@ -101,6 +101,7 @@ def get_the_ones_who_dont_follow_me_back():
     return {t: followings[t] for t in toughs}
 
 
+###############################################################################
 def get_lost_followers_for_period(period=7):
     followers = relationship_data_the_last(principle='followed_by')
     all_followers_in_period = \
