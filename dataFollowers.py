@@ -9,11 +9,20 @@ regex_date_pattern = '^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$'
 
 ###############################################################################
 def get_aim_path(principle):
+    if principle not in ['followed_by', 'follows']:
+        return None
+
+    aim_path = None
+
     if os.path.exists('users/'):
         for x in os.walk('users/'):
             if principle in x[1]:
-                return x[0] + '/' + principle
-    return None
+                aim_path = x[0] + '/' + principle
+
+    if aim_path is None:
+        print 'No directory for', principle
+
+    return aim_path
 
 
 ###############################################################################
@@ -34,13 +43,7 @@ def build_dates_to_filename_dict(aim_path):
 
 ###############################################################################
 def relationship_data_for_period(period_days=1, principle='followed_by'):
-    if principle not in ['followed_by', 'follows']:
-        return None
-
     aim_path = get_aim_path(principle)
-
-    if aim_path is None:
-        print 'No directory for', principle
 
     dates_to_filenames = build_dates_to_filename_dict(aim_path)
 
@@ -58,13 +61,7 @@ def relationship_data_for_period(period_days=1, principle='followed_by'):
 
 ###############################################################################
 def relationship_data_the_last(principle='followed_by'):
-    if principle not in ['followed_by', 'follows']:
-        return None
-
     aim_path = get_aim_path(principle)
-
-    if aim_path is None:
-        print 'No directory for', principle
 
     dates_to_filenames = build_dates_to_filename_dict(aim_path)
 
@@ -75,7 +72,8 @@ def relationship_data_the_last(principle='followed_by'):
     #
     the_last = sorted(dates_to_filenames.keys())[-1]
 
-    return json.load(open(aim_path + '/' + dates_to_filenames[the_last]))
+    file_path = aim_path + '/' + dates_to_filenames[the_last]
+    return json.load(open(file_path))
 
 
 # the complement operation of sets ############################################
@@ -88,52 +86,50 @@ def list_subtraction(minuend_list, subtrahend_list):
 
 
 ###############################################################################
-def print_the_ones_i_dont_follow_back():
+def get_the_ones_i_dont_follow_back():
     followers = relationship_data_the_last(principle='followed_by')
     followings = relationship_data_the_last(principle='follows')
-
     pours = list_subtraction(followers.keys(), followings.keys())
-    print "There are", len(pours), "Followers you don't follow back: "
-    for p in pours:
-        print followers[p]
+    return {p: followers[p] for p in pours}
 
 
 ###############################################################################
-def print_the_ones_who_dont_follow_me_back():
+def get_the_ones_who_dont_follow_me_back():
     followers = relationship_data_the_last(principle='followed_by')
     followings = relationship_data_the_last(principle='follows')
-
     toughs = list_subtraction(followings.keys(), followers.keys())
-    print "There are", len(toughs), "Following users who don't follow you back: "
-    for p in toughs:
-        print followings[p]
+    return {t: followings[t] for t in toughs}
 
 
-def print_lost_followers_for_period(period=7):
+def get_lost_followers_for_period(period=7):
     followers = relationship_data_the_last(principle='followed_by')
     all_followers_in_period = \
         relationship_data_for_period(period_days=period, principle='followed_by')
     fagots = list_subtraction(all_followers_in_period.keys(), followers.keys())
-    print "There are", len(fagots), "people who unfollowed you in last", period, "days."
-    for fag in fagots:
-        print all_followers_in_period[fag]
+    return {f: all_followers_in_period[f] for f in fagots}
 
-print_the_ones_who_dont_follow_me_back()
 
-# file1, file2 = compared_files_with_period(period_days=3, principle='followed_by')
-# data1 = json.load(open(file1, 'r'))
-# data2 = json.load(open(file2, 'r'))
-#
-# something_shawn = False
-# for key in data1.keys():
-#     if key not in data2.keys():
-#         print "Unfollowed: ", data1[key]
-#         something_shawn = True
-#
-# for key in data2.keys():
-#     if key not in data1.keys():
-#         print "New follow: ", data2[key]
-#         something_shawn = True
-#
-# if not something_shawn:
-#     print len([x for x in data1.values()])
+###############################################################################
+def print_the_ones_i_dont_follow_back():
+    the_ones = get_the_ones_i_dont_follow_back()
+    print "There are", len(the_ones), "Followers you don't follow back: "
+    for p in the_ones.values():
+        print p
+
+
+###############################################################################
+def print_the_ones_who_dont_follow_me_back():
+    the_ones = get_the_ones_who_dont_follow_me_back()
+    print "There are", len(the_ones), "Following users who don't follow you back: "
+    for p in the_ones.values():
+        print p
+
+
+###############################################################################
+def print_lost_followers_for_period(period=7):
+    the_ones = get_lost_followers_for_period(period)
+    print "There are", len(the_ones), "people who unfollowed you in last", period, "days."
+    for fag in the_ones.values():
+        print fag
+
+print_lost_followers_for_period()
