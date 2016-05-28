@@ -134,11 +134,9 @@ def print_lost_followers_for_period(period=7):
     for fag in the_ones:
         print fag
 
-lost_followers = get_lost_followers_for_period()
-for id in lost_followers.keys():
-    info_provider = UserInfoProvider(id)
-    if info_provider.is_valid():
-        print lost_followers[id], info_provider.instagram_profile_url()
-    else:
-        print "Bad id for user:", lost_followers[id]
 
+lost = get_lost_followers_for_period()
+
+for user_id in lost:
+    provider = UserInfoProvider(user_id)
+    print provider.instagram_profile_url()
