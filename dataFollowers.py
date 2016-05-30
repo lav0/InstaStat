@@ -42,7 +42,7 @@ def build_dates_to_filename_dict(aim_path):
     return dates_to_filenames
 
 
-###############################################################################
+# combined data for last 'period_days'  ########################################
 def relationship_data_for_period(period_days=1, principle='followed_by'):
     aim_path = get_aim_path(principle)
 
@@ -58,6 +58,26 @@ def relationship_data_for_period(period_days=1, principle='followed_by'):
             result.update(json.load(open(file_path)))
 
     return result
+
+
+###############################################################################
+def relationship_data_for_moment_in_past(shift_from_current, principle='followed_by'):
+    aim_path = get_aim_path(principle)
+
+    dates_to_filenames = build_dates_to_filename_dict(aim_path)
+
+    period = timedelta(days=shift_from_current)
+
+    dates = sorted(dates_to_filenames.keys())
+    last_date = dates[-1]
+    aim_date = last_date - period
+    found_data = last_date
+    for date in dates[-2::-1]:
+        found_data = date
+        if date <= aim_date:
+            break
+    file_path = aim_path + '/' + dates_to_filenames[found_data]
+    return json.load(open(file_path))
 
 
 ###############################################################################
@@ -78,10 +98,20 @@ def relationship_data_the_last(principle='followed_by'):
 
 
 # the complement operation of sets ############################################
+# by 'set' I mean a mathematical abstraction and not the Python's set {} ######
 def list_subtraction(minuend_list, subtrahend_list):
     result = list()
     for entry in minuend_list:
         if entry not in subtrahend_list:
+            result.append(entry)
+    return result
+
+
+################################################################################
+def list_intersection(list1, list2):
+    result = list()
+    for entry in list1:
+        if entry in list2:
             result.append(entry)
     return result
 
@@ -112,6 +142,23 @@ def get_lost_followers_for_period(period=7):
 
 
 ###############################################################################
+def get_new_followings_for_period(period=7):
+    followings = relationship_data_the_last(principle='follows')
+    followings_in_past = \
+        relationship_data_for_moment_in_past(shift_from_current=period, principle='follows')
+    cools = list_subtraction(followings.keys(), followings_in_past.keys())
+    return {c: followings[c] for c in cools}
+
+
+###############################################################################
+def get_new_followings_who_dont_follow_you_back(period=7):
+    followings_new = get_new_followings_for_period(period)
+    followings_no_back = get_the_ones_who_dont_follow_me_back()
+    jerks = list_intersection(followings_new.keys(), followings_no_back.keys())
+    return {j: followings_new[j] for j in jerks}
+
+
+###############################################################################
 def print_the_ones_i_dont_follow_back():
     the_ones = get_the_ones_i_dont_follow_back()
     print "There are", len(the_ones), "Followers you don't follow back: "
@@ -135,7 +182,7 @@ def print_lost_followers_for_period(period=7):
         print fag
 
 
-lost = get_lost_followers_for_period()
+lost = get_new_followings_who_dont_follow_you_back(7)
 
 for user_id in lost:
     provider = UserInfoProvider(user_id)
