@@ -182,8 +182,17 @@ def print_lost_followers_for_period(period=7):
         print fag
 
 
-lost = get_new_followings_who_dont_follow_you_back(7)
+new_ = get_new_followings_who_dont_follow_you_back(7)
 
+print "\nNew followings who don't follow you back: "
+for user_id in new_:
+    provider = UserInfoProvider(user_id)
+    print provider.instagram_profile_url()
+
+lost = get_lost_followers_for_period(3)
+print "\nLost followers: "
 for user_id in lost:
     provider = UserInfoProvider(user_id)
     print provider.instagram_profile_url()
+
+

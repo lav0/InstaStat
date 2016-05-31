@@ -49,8 +49,11 @@ class SortedMediaProvider:
 
     def get_media_mean_value_for(self, principle):
         sorted_media = self.get_media_sorted_by(principle)
-
         total_media_num = len(sorted_media)
+
+        if total_media_num <= 0:
+            return 0
+
         if total_media_num % 2 == 1:
             mean = sorted_media[total_media_num / 2].like_count()
         else:
@@ -62,10 +65,12 @@ class SortedMediaProvider:
 
     def get_media_average_value_fro(self, principle):
         sorted_media = self.get_media_sorted_by(principle)
+        if len(sorted_media) <= 0:
+            return 0
         return sum([m.like_count() for m in sorted_media]) / float(len(sorted_media))
 
 
-provider = SortedMediaProvider(user_name='tlmnva0')
+provider = SortedMediaProvider(user_name='lav_q')
 sorted_by_like = provider.get_media_sorted_by('like_count')
 for p in sorted_by_like:
     print p.link(), p.like_count()
