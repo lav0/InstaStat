@@ -2,6 +2,7 @@ import json
 import sys
 import os
 from instagram.client import InstagramAPI
+from updateData import DataUpdater
 import authInfoProvider
 
 
@@ -37,9 +38,12 @@ else:
 print "Found user:", user.username
 userid = save_user(user.username, user.id)
 
+need_to_update = True
+if len(sys.argv) > 1:
+    if "-s" == sys.argv[-2]:
+        need_to_update = False
 
-from updateData import DataUpdater
-
-DataUpdater(userid, authInfoProvider.get_access_token()).update()
+if need_to_update:
+    DataUpdater(user_id=userid, access_token=authInfoProvider.get_access_token()).update()
 
 
